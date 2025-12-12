@@ -4,8 +4,6 @@
 
 :Original: Documentation/virt/kvm/eager-page-split.rst
 
-:Translator: Copilot SWE Agent
-
 ===============================================
 KVM 急切页面拆分用于虚拟机热迁移
 ===============================================

@@ -257,6 +257,5 @@ cat /sys/kernel/debug/kvm/<vm_id>/stats | grep -E "pages_4k|pages_2m|pages_1g"
 
 ---
 
-**Created by:** Copilot SWE Agent  
 **Date:** 2025-12-12  
 **Purpose:** Document existing KVM eager page splitting feature for 1GB huge pages before VM live migration
