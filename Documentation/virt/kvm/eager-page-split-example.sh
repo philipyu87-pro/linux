@@ -192,22 +192,35 @@ display_vm_stats() {
 run_selftest() {
     print_section "Running Self-Test / 运行自测试"
     
-    TEST_PATH="tools/testing/selftests/kvm/x86/dirty_log_page_splitting_test"
+    # Try multiple possible locations for the test
+    TEST_PATHS=(
+        "tools/testing/selftests/kvm/x86/dirty_log_page_splitting_test"
+        "/usr/share/kvm-unit-tests/x86/dirty_log_page_splitting_test"
+        "./x86/dirty_log_page_splitting_test"
+    )
     
-    if [ -f "$TEST_PATH" ]; then
-        print_status "Found test program at $TEST_PATH"
-        print_status "Running test..."
-        
-        if "$TEST_PATH"; then
-            print_status "Test PASSED / 测试通过"
-        else
-            print_error "Test FAILED / 测试失败"
-            return 1
+    TEST_FOUND=false
+    for TEST_PATH in "${TEST_PATHS[@]}"; do
+        if [ -f "$TEST_PATH" ]; then
+            TEST_FOUND=true
+            print_status "Found test program at $TEST_PATH"
+            print_status "Running test..."
+            
+            if "$TEST_PATH"; then
+                print_status "Test PASSED / 测试通过"
+            else
+                print_error "Test FAILED / 测试失败"
+                return 1
+            fi
+            break
         fi
-    else
-        print_warning "Test program not found. Build with:"
-        print_warning "测试程序未找到。使用以下命令构建："
-        echo "  cd tools/testing/selftests/kvm && make"
+    done
+    
+    if [ "$TEST_FOUND" = false ]; then
+        print_warning "Test program not found in standard locations."
+        print_warning "测试程序在标准位置未找到。"
+        print_warning "Build with: cd <kernel-source>/tools/testing/selftests/kvm && make"
+        print_warning "构建命令：cd <内核源码>/tools/testing/selftests/kvm && make"
     fi
 }
 

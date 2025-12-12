@@ -164,8 +164,8 @@ Key implementation files:
   - `tdp_mmu_split_huge_pages_root()`
 
 - `arch/x86/kvm/x86.c` - 模块参数和集成
-  - Line 186-187: `eager_page_split` 模块参数定义
-  - Line 13572-13573: 脏页日志记录时的调用
+  - `eager_page_split` 模块参数定义
+  - 脏页日志记录时的调用
 
 - `tools/testing/selftests/kvm/x86/dirty_log_page_splitting_test.c` - 测试程序
 
