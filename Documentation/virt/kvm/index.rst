@@ -19,4 +19,5 @@ KVM
    locking
    vcpu-requests
    halt-polling
+   eager-page-split
    review-checklist
