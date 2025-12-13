@@ -9,7 +9,6 @@
 
 #define pr_fmt(fmt) "KHO: " fmt
 
-#include <linux/cleanup.h>
 #include <linux/cma.h>
 #include <linux/kmemleak.h>
 #include <linux/count_zeros.h>
@@ -720,11 +719,13 @@ int kho_add_subtree(const char *name, void *fdt)
 	int err = -ENOMEM;
 	int off, fdt_err;
 
-	guard(mutex)(&kho_out.lock);
+	mutex_lock(&kho_out.lock);
 
 	fdt_err = fdt_open_into(root_fdt, root_fdt, PAGE_SIZE);
-	if (fdt_err < 0)
+	if (fdt_err < 0) {
+		mutex_unlock(&kho_out.lock);
 		return err;
+	}
 
 	off = fdt_add_subnode(root_fdt, 0, name);
 	if (off < 0) {
@@ -741,6 +742,7 @@ int kho_add_subtree(const char *name, void *fdt)
 
 out_pack:
 	fdt_pack(root_fdt);
+	mutex_unlock(&kho_out.lock);
 
 	return err;
 }
@@ -753,11 +755,13 @@ void kho_remove_subtree(void *fdt)
 	int off;
 	int err;
 
-	guard(mutex)(&kho_out.lock);
+	mutex_lock(&kho_out.lock);
 
 	err = fdt_open_into(root_fdt, root_fdt, PAGE_SIZE);
-	if (err < 0)
+	if (err < 0) {
+		mutex_unlock(&kho_out.lock);
 		return;
+	}
 
 	for (off = fdt_first_subnode(root_fdt, 0); off >= 0;
 	     off = fdt_next_subnode(root_fdt, off)) {
@@ -776,6 +780,7 @@ void kho_remove_subtree(void *fdt)
 	}
 
 	fdt_pack(root_fdt);
+	mutex_unlock(&kho_out.lock);
 }
 EXPORT_SYMBOL_GPL(kho_remove_subtree);
 
@@ -1234,20 +1239,28 @@ int kho_finalize(void)
 	if (!kho_enable)
 		return -EOPNOTSUPP;
 
-	guard(mutex)(&kho_out.lock);
+	mutex_lock(&kho_out.lock);
 	ret = kho_mem_serialize(&kho_out);
-	if (ret)
+	if (ret) {
+		mutex_unlock(&kho_out.lock);
 		return ret;
+	}
 
 	kho_out.finalized = true;
+	mutex_unlock(&kho_out.lock);
 
 	return 0;
 }
 
 bool kho_finalized(void)
 {
-	guard(mutex)(&kho_out.lock);
-	return kho_out.finalized;
+	bool result;
+
+	mutex_lock(&kho_out.lock);
+	result = kho_out.finalized;
+	mutex_unlock(&kho_out.lock);
+
+	return result;
 }
 
 struct kho_in {
