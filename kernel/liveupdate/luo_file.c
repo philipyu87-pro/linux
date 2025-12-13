@@ -95,7 +95,6 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-#include <linux/cleanup.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <linux/errno.h>
@@ -369,7 +368,7 @@ static int luo_file_freeze_one(struct luo_file_set *file_set,
 {
 	int err = 0;
 
-	guard(mutex)(&luo_file->mutex);
+	mutex_lock(&luo_file->mutex);
 
 	if (luo_file->fh->ops->freeze) {
 		struct liveupdate_file_op_args args = {0};
@@ -384,13 +383,14 @@ static int luo_file_freeze_one(struct luo_file_set *file_set,
 			luo_file->serialized_data = args.serialized_data;
 	}
 
+	mutex_unlock(&luo_file->mutex);
 	return err;
 }
 
 static void luo_file_unfreeze_one(struct luo_file_set *file_set,
 				  struct luo_file *luo_file)
 {
-	guard(mutex)(&luo_file->mutex);
+	mutex_lock(&luo_file->mutex);
 
 	if (luo_file->fh->ops->unfreeze) {
 		struct liveupdate_file_op_args args = {0};
@@ -404,6 +404,7 @@ static void luo_file_unfreeze_one(struct luo_file_set *file_set,
 	}
 
 	luo_file->serialized_data = 0;
+	mutex_unlock(&luo_file->mutex);
 }
 
 static void __luo_file_unfreeze(struct luo_file_set *file_set,
@@ -567,7 +568,7 @@ int luo_retrieve_file(struct luo_file_set *file_set, u64 token,
 	if (luo_file->token != token)
 		return -ENOENT;
 
-	guard(mutex)(&luo_file->mutex);
+	mutex_lock(&luo_file->mutex);
 	if (luo_file->retrieved) {
 		/*
 		 * Someone is asking for this file again, so get a reference
@@ -575,6 +576,7 @@ int luo_retrieve_file(struct luo_file_set *file_set, u64 token,
 		 */
 		get_file(luo_file->file);
 		*filep = luo_file->file;
+		mutex_unlock(&luo_file->mutex);
 		return 0;
 	}
 
@@ -590,6 +592,7 @@ int luo_retrieve_file(struct luo_file_set *file_set, u64 token,
 		luo_file->retrieved = true;
 	}
 
+	mutex_unlock(&luo_file->mutex);
 	return err;
 }
 
@@ -597,8 +600,9 @@ static int luo_file_can_finish_one(struct luo_file_set *file_set,
 				   struct luo_file *luo_file)
 {
 	bool can_finish = true;
+	int result;
 
-	guard(mutex)(&luo_file->mutex);
+	mutex_lock(&luo_file->mutex);
 
 	if (luo_file->fh->ops->can_finish) {
 		struct liveupdate_file_op_args args = {0};
@@ -610,7 +614,10 @@ static int luo_file_can_finish_one(struct luo_file_set *file_set,
 		can_finish = luo_file->fh->ops->can_finish(&args);
 	}
 
-	return can_finish ? 0 : -EBUSY;
+	result = can_finish ? 0 : -EBUSY;
+	mutex_unlock(&luo_file->mutex);
+
+	return result;
 }
 
 static void luo_file_finish_one(struct luo_file_set *file_set,
@@ -618,7 +625,7 @@ static void luo_file_finish_one(struct luo_file_set *file_set,
 {
 	struct liveupdate_file_op_args args = {0};
 
-	guard(mutex)(&luo_file->mutex);
+	mutex_lock(&luo_file->mutex);
 
 	args.handler = luo_file->fh;
 	args.file = luo_file->file;
@@ -626,6 +633,8 @@ static void luo_file_finish_one(struct luo_file_set *file_set,
 	args.retrieved = luo_file->retrieved;
 
 	luo_file->fh->ops->finish(&args);
+
+	mutex_unlock(&luo_file->mutex);
 }
 
 /**
