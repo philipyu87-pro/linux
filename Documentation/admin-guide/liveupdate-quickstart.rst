@@ -183,6 +183,12 @@ Troubleshooting
 
 ----
 
+**Problem**: Kernel signature verification failed (-129)
+
+**Solution**: Either sign kernel image or rebuild with CONFIG_KEXEC_SIG_FORCE disabled
+
+----
+
 **Problem**: Session not found (ENOENT)
 
 **Solution**: Verify session was created and kexec completed successfully

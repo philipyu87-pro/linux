@@ -507,7 +507,24 @@ Linux 内核源码中包含了完整的 LUO 测试套件::
 - 内核命令行包含 ``kho=on``
 - 有足够的内存用于 scratch 区域
 
-**3. 会话检索失败 (ENOENT)**
+**3. 内核签名验证失败**
+
+错误信息：``kexec_file: Enforced kernel signature verification failed (-129)``
+
+这个错误发生在启用了 ``CONFIG_KEXEC_SIG_FORCE`` 的系统上，该配置要求所有通过 kexec 
+加载的内核必须具有有效的签名。
+
+解决方法：
+
+- 使用内核密钥环中的有效密钥对内核镜像进行签名，或
+- 重新编译内核，禁用 ``CONFIG_KEXEC_SIG_FORCE``（保留 ``CONFIG_KEXEC_FILE=y``）
+- 如果使用已签名的内核，确保签名密钥在系统密钥环中
+
+检查是否启用了签名强制::
+
+    grep CONFIG_KEXEC_SIG_FORCE /boot/config-$(uname -r)
+
+**4. 会话检索失败 (ENOENT)**
 
 确保：
 
@@ -515,7 +532,7 @@ Linux 内核源码中包含了完整的 LUO 测试套件::
 - 会话名称完全匹配
 - kexec 成功传递了 KHO 数据
 
-**4. 文件描述符保存失败**
+**5. 文件描述符保存失败**
 
 确保：
 

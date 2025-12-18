@@ -504,7 +504,24 @@ Ensure:
 - Kernel command line includes ``kho=on``
 - Sufficient memory is available for scratch regions
 
-**3. Session retrieval fails (ENOENT)**
+**3. Kernel signature verification failed**
+
+Error message: ``kexec_file: Enforced kernel signature verification failed (-129)``
+
+This occurs when ``CONFIG_KEXEC_SIG_FORCE`` is enabled, requiring all kexec'd
+kernels to have valid signatures.
+
+Solutions:
+
+- Sign the kernel image with a valid key in the kernel keyring, or
+- Rebuild the kernel with ``CONFIG_KEXEC_SIG_FORCE`` disabled (keep ``CONFIG_KEXEC_FILE=y``)
+- If using signed kernels, ensure the signing key is in the system keyring
+
+To check if signature enforcement is enabled::
+
+    grep CONFIG_KEXEC_SIG_FORCE /boot/config-$(uname -r)
+
+**4. Session retrieval fails (ENOENT)**
 
 Ensure:
 
@@ -512,7 +529,7 @@ Ensure:
 - Session name matches exactly
 - kexec successfully transferred KHO data
 
-**4. File descriptor preservation fails**
+**5. File descriptor preservation fails**
 
 Ensure:
 
