@@ -66,6 +66,8 @@ Todolist:
    clearing-warn-once
    cpu-load
    cputopology
+   liveupdate-quickstart
+   liveupdate-usage
    lockup-watchdogs
    numastat
    unicode
