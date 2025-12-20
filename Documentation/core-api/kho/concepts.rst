@@ -56,6 +56,40 @@ for boot memory allocations and as target memory for kexec blobs, some parts
 of that memory region may be reserved. These reservations are irrelevant for
 the next KHO, because kexec can overwrite even the original kernel.
 
+Memory and Page Table Handling
+===============================
+
+During KHO kexec, the physical memory content of preserved regions is retained,
+but the kernel's page table structures themselves are **not** preserved. This is
+an important distinction:
+
+**What IS preserved:**
+
+- Physical memory content (the actual data in RAM at preserved physical addresses)
+- Memory metadata (tracked via the KHO FDT)
+- Device states that were serialized into preserved memory regions
+
+**What is NOT preserved:**
+
+- Page table structures (pgd, pud, pmd, pte entries)
+- Virtual memory mappings
+- Kernel data structures that track virtual-to-physical mappings
+
+The new kernel rebuilds its own page tables during boot and uses the KHO FDT
+to map the preserved physical memory regions into its virtual address space.
+This allows the new kernel to access the preserved data while maintaining its
+own independent memory management structures.
+
+For example, if the old kernel preserved a memfd at physical address 0x100000000,
+the new kernel will:
+
+1. Read the KHO FDT to discover the preserved region at 0x100000000
+2. Create new page table entries to map this physical memory
+3. Access the preserved data through the new mappings
+
+This approach ensures that the new kernel has full control over its memory
+management while still being able to access preserved state from the old kernel.
+
 .. _kho-finalization-phase:
 
 KHO finalization phase
