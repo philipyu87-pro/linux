@@ -37,6 +37,11 @@
  * LUO uses Kexec Handover to transfer memory state from the current kernel to
  * the next kernel. For more details see
  * Documentation/core-api/kho/concepts.rst.
+ *
+ * Important: During live update, the physical memory content of preserved
+ * regions is retained, but the kernel's page table structures are NOT
+ * preserved. The new kernel rebuilds its own page tables and uses the KHO FDT
+ * to map the preserved physical memory regions into its virtual address space.
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

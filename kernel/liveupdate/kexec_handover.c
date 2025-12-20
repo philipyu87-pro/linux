@@ -5,6 +5,11 @@
  * Copyright (C) 2025 Microsoft Corporation, Mike Rapoport <rppt@kernel.org>
  * Copyright (C) 2025 Google LLC, Changyuan Lyu <changyuanl@google.com>
  * Copyright (C) 2025 Pasha Tatashin <pasha.tatashin@soleen.com>
+ *
+ * KHO preserves physical memory content across kexec, but does NOT preserve
+ * page table structures. The new kernel rebuilds its own page tables and uses
+ * the KHO FDT to discover and map preserved physical memory regions into its
+ * virtual address space.
  */
 
 #define pr_fmt(fmt) "KHO: " fmt

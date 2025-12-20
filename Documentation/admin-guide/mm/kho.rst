@@ -113,3 +113,44 @@ stabilized.
 ``/sys/kernel/debug/kho/in/sub_fdts/``
     Similar to ``kho/out/sub_fdts/``, but contains sub FDT blobs
     of KHO producers passed from the old kernel.
+
+Frequently Asked Questions
+==========================
+
+**Q: Are page tables preserved across KHO kexec?**
+
+A: No. During KHO kexec, the physical memory content of preserved regions is
+   retained, but the kernel's page table structures themselves are NOT preserved.
+   
+   The new kernel rebuilds its own page tables during boot and uses the KHO FDT
+   (Flattened Device Tree) to discover which physical memory regions were
+   preserved. It then creates new page table entries to map these preserved
+   physical memory regions into its virtual address space.
+   
+   This design ensures that the new kernel has full control over its memory
+   management while still being able to access preserved data from the old kernel.
+
+**Q: What memory information IS preserved during KHO kexec?**
+
+A: The following are preserved:
+   
+   - Physical memory content (the actual data in RAM at preserved physical addresses)
+   - Memory region metadata (tracked via the KHO FDT)
+   - Device states that were serialized into preserved memory regions
+   
+   The following are NOT preserved:
+   
+   - Page table structures (pgd, pud, pmd, pte entries)
+   - Virtual memory mappings
+   - Kernel data structures that track virtual-to-physical mappings
+
+**Q: How does the new kernel access preserved memory?**
+
+A: The new kernel:
+   
+   1. Reads the KHO FDT to discover preserved physical memory regions
+   2. Creates new page table entries to map these physical addresses
+   3. Accesses the preserved data through the new mappings
+   
+   This allows the new kernel to use preserved state from the old kernel while
+   maintaining its own independent memory management structures.
