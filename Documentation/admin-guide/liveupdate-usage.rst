@@ -22,6 +22,36 @@ Key Use Cases
 * **High-performance databases**: Keep database memory state during kernel updates
 * **Network services**: Preserve connection states for network services
 
+Important Limitations
+---------------------
+
+LUO is a **data preservation mechanism**, not process migration or live migration.
+Understanding what is and isn't preserved is critical:
+
+**What LUO Preserves:**
+
+* Physical memory contents (e.g., data in memfd pages)
+* File descriptor state for supported types (memfd, device FDs with driver support)
+* Hardware device states (with driver support)
+
+**What LUO Does NOT Preserve:**
+
+* **Process state**: Processes must restart; LUO doesn't preserve running processes
+* **Page tables**: Virtual address mappings are not preserved; the new kernel creates new page tables
+* **Virtual addresses**: Physical pages are preserved, but virtual addresses may change
+* **Process memory (stack, heap, code)**: Only explicitly preserved FDs (like memfd) retain data
+* **Register state, CPU context**: Processes start fresh in the new kernel
+
+**Workflow Required:**
+
+1. **Before kexec**: Application saves critical data to memfd (or other supported FD types)
+2. **After kexec**: Application restarts and uses LUO API to retrieve preserved data
+3. Application reconstructs its state using the preserved data
+
+This design allows kernel updates while preserving application data, but requires
+applications to be "LUO-aware" and actively participate in the preservation/restoration
+process.
+
 Kernel Configuration
 ====================
 
