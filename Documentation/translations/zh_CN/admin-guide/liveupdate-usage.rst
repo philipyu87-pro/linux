@@ -547,7 +547,32 @@ Linux 内核源码中包含了完整的 LUO 测试套件::
 - 内核命令行包含 ``kho=on``
 - 有足够的内存用于 scratch 区域
 
-**3. 内核签名验证失败**
+**3. kexec -s 参数失败，提示 "Nothing has been loaded!"**
+
+``-s``（或 ``--kexec-file-syscall``）参数使用 ``kexec_file_load()`` 系统调用，
+它比标准的 ``kexec_load()`` 有额外的要求。
+
+常见原因：
+
+- **缺少 CONFIG_KEXEC_FILE**：``-s`` 参数需要 ``CONFIG_KEXEC_FILE=y``
+- **签名验证**：启用 ``CONFIG_KEXEC_SIG`` 时，``kexec_file_load()`` 强制进行签名检查
+- **未签名内核**：如果启用了签名验证但内核未签名，加载会静默失败
+
+诊断方法::
+
+    # 检查是否启用了 CONFIG_KEXEC_FILE
+    grep CONFIG_KEXEC_FILE /boot/config-$(uname -r)
+    
+    # 检查签名验证设置
+    grep CONFIG_KEXEC_SIG /boot/config-$(uname -r)
+
+解决方法：
+
+- **对于 LUO**：使用 ``-s`` 参数（推荐），但需确保内核配置正确
+- **临时方案**：省略 ``-s`` 参数进行基本 kexec（可能限制 LUO 功能）
+- **永久修复**：启用 ``CONFIG_KEXEC_FILE=y`` 并处理签名要求
+
+**4. 内核签名验证失败**
 
 错误信息：``kexec_file: Enforced kernel signature verification failed (-129)``
 
@@ -564,7 +589,7 @@ Linux 内核源码中包含了完整的 LUO 测试套件::
 
     grep CONFIG_KEXEC_SIG_FORCE /boot/config-$(uname -r)
 
-**4. 会话检索失败 (ENOENT)**
+**5. 会话检索失败 (ENOENT)**
 
 确保：
 
@@ -572,7 +597,7 @@ Linux 内核源码中包含了完整的 LUO 测试套件::
 - 会话名称完全匹配
 - kexec 成功传递了 KHO 数据
 
-**5. 文件描述符保存失败**
+**6. 文件描述符保存失败**
 
 确保：
 

@@ -546,7 +546,32 @@ Ensure:
 - Kernel command line includes ``kho=on``
 - Sufficient memory is available for scratch regions
 
-**3. Kernel signature verification failed**
+**3. kexec -s flag fails with "Nothing has been loaded!"**
+
+The ``-s`` (or ``--kexec-file-syscall``) flag uses ``kexec_file_load()`` which has
+additional requirements beyond standard ``kexec_load()``.
+
+Common causes:
+
+- **Missing CONFIG_KEXEC_FILE**: The ``-s`` flag requires ``CONFIG_KEXEC_FILE=y``
+- **Signature verification**: ``kexec_file_load()`` enforces signature checks when ``CONFIG_KEXEC_SIG`` is enabled
+- **Unsigned kernel**: If signature verification is enabled but kernel is not signed, load will fail silently
+
+To diagnose::
+
+    # Check if CONFIG_KEXEC_FILE is enabled
+    grep CONFIG_KEXEC_FILE /boot/config-$(uname -r)
+    
+    # Check signature verification settings
+    grep CONFIG_KEXEC_SIG /boot/config-$(uname -r)
+
+Solutions:
+
+- **For LUO**: Use ``-s`` flag (recommended) but ensure kernel config is correct
+- **Workaround**: Omit ``-s`` flag for basic kexec (may limit LUO functionality)
+- **Permanent fix**: Enable ``CONFIG_KEXEC_FILE=y`` and handle signature requirements
+
+**4. Kernel signature verification failed**
 
 Error message: ``kexec_file: Enforced kernel signature verification failed (-129)``
 
@@ -563,7 +588,7 @@ To check if signature enforcement is enabled::
 
     grep CONFIG_KEXEC_SIG_FORCE /boot/config-$(uname -r)
 
-**4. Session retrieval fails (ENOENT)**
+**5. Session retrieval fails (ENOENT)**
 
 Ensure:
 
@@ -571,7 +596,7 @@ Ensure:
 - Session name matches exactly
 - kexec successfully transferred KHO data
 
-**5. File descriptor preservation fails**
+**6. File descriptor preservation fails**
 
 Ensure:
 
