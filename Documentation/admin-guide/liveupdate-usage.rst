@@ -115,12 +115,18 @@ When KHO is enabled, the system allocates the following memory regions:
 
 1. **Scratch regions**: Physically contiguous memory for kexec loading
    
-   - One scratch region per NUMA node
-   - One scratch region for non-NUMA-specific allocations
-   - These regions are declared as CMA after page allocator initialization
+   - **Purpose**: Store new kernel image and initrd during kexec
+   - **Early boot allocation**: New kernel uses scratch region exclusively before page allocator initialization
+   - **Protection**: Prevents overwriting preserved memory data
+   - **Layout**: One scratch region per NUMA node plus one for non-NUMA-specific allocations
+   - **CMA mechanism**: Declared as CMA after page allocator initialization, allowing reuse during system runtime
 
 2. **Preserved regions**: Memory for storing serialized system state and data
    that must be retained across kexec
+
+   - **FDT storage**: KHO Flattened Device Tree (FDT) is stored outside scratch regions in preserved memory
+   - **Data transfer**: FDT physical address is passed via ``kimage->kho.fdt`` and received as ``kho_in.fdt_phys``
+   - **Access method**: New kernel maps FDT using ``phys_to_virt()`` to access preserved metadata
 
 How to Initiate Live Update from Userspace
 ===========================================
