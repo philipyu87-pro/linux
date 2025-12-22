@@ -207,8 +207,14 @@ Use the ``LIVEUPDATE_SESSION_PRESERVE_FD`` ioctl to preserve a file descriptor::
 
 Currently supported file descriptor types:
 
-* memfd (memory file descriptors)
-* Other types require driver support (e.g., KVM, VFIO)
+* **memfd (memory file descriptors)**: Fully implemented with all ``liveupdate_file_ops`` callbacks
+* **Other types**: Framework supports KVM, VFIO, and other device drivers, but require driver-specific implementation
+
+.. note::
+   As of this kernel version, only memfd has a complete LUO implementation.
+   Other device types (KVM, VFIO, IOMMU) are architecturally supported but
+   require device driver maintainers to implement the ``liveupdate_file_ops``
+   callbacks.
 
 Retrieving Sessions (In New Kernel)
 ------------------------------------
