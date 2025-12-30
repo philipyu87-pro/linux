@@ -18,7 +18,7 @@
   <rect class="area" x="20" y="70" width="480" height="400" rx="14" ry="14"/>
   <rect class="area" x="700" y="70" width="480" height="400" rx="14" ry="14"/>
   <text class="label" x="40" y="95">当前内核 (N)</text>
-  <text class="label" x="720" y="95">新内核 (N+1)</text>
+  <text class="label" x="740" y="95">新内核 (N+1)</text>
   <text class="title" x="600" y="45" text-anchor="middle">LUO 热升级流程</text>
   <rect class="box" x="80" y="130" width="280" height="100"/>
   <text class="text" x="100" y="160">用户态 LUO 代理 / 应用</text>
