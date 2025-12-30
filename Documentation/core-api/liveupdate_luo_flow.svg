@@ -21,28 +21,27 @@
   <text class="label" x="740" y="95">新内核 (N+1) / Next kernel</text>
   <text class="title" x="600" y="45" text-anchor="middle">LUO 热升级流程 / LUO Hot Upgrade Flow</text>
   <rect class="box" x="80" y="130" width="280" height="100"/>
-  <text class="text" x="100" y="160">用户态 LUO 代理 / 应用 (userspace agent/app)</text>
-  <text class="text" x="100" y="185">ioctl /dev/liveupdate</text>
-  <text class="text" x="100" y="210">创建会话、登记待保留的</text>
-  <text class="text" x="100" y="235">文件描述符 / 设备状态 (FDs/devices)</text>
+  <text class="text" x="100" y="160">用户态 LUO 代理 (userspace agent)</text>
+  <text class="text" x="100" y="185">/dev/liveupdate ioctl</text>
+  <text class="text" x="100" y="210">preserve(): 注册会话与 FDs</text>
+  <text class="text" x="100" y="235">标记设备/状态待保留</text>
   <rect class="box" x="80" y="270" width="280" height="120"/>
-  <text class="text" x="100" y="300">LUO 核心 + 子系统回调</text>
-  <text class="text" x="100" y="325">freeze 设备与文件、停止新 I/O</text>
-  <text class="text" x="100" y="350">序列化会话到 KHO FDT 与</text>
-  <text class="text" x="100" y="375">保留内存 (memfd 等) / serialize to KHO</text>
+  <text class="text" x="100" y="300">LUO 核心 + 回调</text>
+  <text class="text" x="100" y="325">freeze I/O, 停止新请求</text>
+  <text class="text" x="100" y="350">serialize &amp; preserve() memfd/FDT</text>
+  <text class="text" x="100" y="375">准备 kexec handover</text>
   <rect class="box2" x="460" y="220" width="200" height="100" rx="14" ry="14"/>
   <text class="text" x="560" y="255" text-anchor="middle">kexec 切换 / kexec handover</text>
   <text class="text" x="560" y="280" text-anchor="middle">携带 KHO handover</text>
   <text class="text" x="560" y="305" text-anchor="middle">FDT 与保留页</text>
   <rect class="box" x="840" y="130" width="280" height="120"/>
-  <text class="text" x="860" y="160">引导早期: LUO 读取 KHO FDT</text>
-  <text class="text" x="860" y="185">重建会话列表、校验代码</text>
-  <text class="text" x="860" y="210">为下一步恢复做准备 / prepare restore</text>
+  <text class="text" x="860" y="160">引导早期: retrieve()</text>
+  <text class="text" x="860" y="185">读取 KHO FDT, 重建会话</text>
+  <text class="text" x="860" y="210">准备恢复 / prepare restore</text>
   <rect class="box" x="840" y="290" width="280" height="120"/>
-  <text class="text" x="860" y="320">LUO 回调解冻设备 / 文件</text>
-  <text class="text" x="860" y="345">恢复文件描述符</text>
-  <text class="text" x="860" y="370">用户态重新检索会话并</text>
-  <text class="text" x="860" y="395">恢复业务运行 / resume workload</text>
+  <text class="text" x="860" y="320">unpreserve() &amp; unfreeze</text>
+  <text class="text" x="860" y="345">retrieve() 重新获取 FDs/设备</text>
+  <text class="text" x="860" y="370">finish(): 业务恢复 / resume</text>
   <path class="arrow" d="M220 230 L220 270"/>
   <path class="arrow" d="M360 330 L460 270"/>
   <path class="arrow" d="M660 270 L840 230"/>
