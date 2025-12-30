@@ -8,6 +8,18 @@ Live Update Orchestrator
 .. kernel-doc:: kernel/liveupdate/luo_core.c
    :doc: Live Update Orchestrator (LUO)
 
+热升级流程示意 / Hot upgrade flow
+=================================
+
+.. figure:: liveupdate_luo_flow.svg
+   :alt: 内核 LUO 热升级流程 / LUO hot upgrade flow
+   :align: center
+   :width: 100%
+
+   LUO 热升级在 kexec 前冻结并序列化会话，随后在新内核中反序列化并解冻，用户态即可继续提供服务。
+   LUO freezes/serializes sessions before kexec and unfreezes them in the next
+   kernel so userspace can resume service quickly.
+
 LUO Sessions
 ============
 .. kernel-doc:: kernel/liveupdate/luo_session.c
