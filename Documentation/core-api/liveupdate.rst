@@ -12,7 +12,7 @@ Live Update Orchestrator
 =================================
 
 .. figure:: liveupdate_luo_flow.svg
-   :alt: 内核 LUO 热升级流程
+   :alt: 内核 LUO 热升级流程 / LUO hot upgrade flow
    :align: center
    :width: 100%
 

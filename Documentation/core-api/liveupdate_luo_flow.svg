@@ -36,7 +36,7 @@
   <text class="text" x="560" y="305" text-anchor="middle">FDT 与保留页</text>
   <rect class="box" x="840" y="130" width="280" height="120"/>
   <text class="text" x="860" y="160">引导早期: LUO 读取 KHO FDT</text>
-  <text class="text" x="860" y="185">重建会话列表、校验代数</text>
+  <text class="text" x="860" y="185">重建会话列表、校验代码</text>
   <text class="text" x="860" y="210">为下一步恢复做准备 / prepare restore</text>
   <rect class="box" x="840" y="290" width="280" height="120"/>
   <text class="text" x="860" y="320">LUO 回调解冻设备 / 文件</text>
