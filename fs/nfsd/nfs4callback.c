@@ -1321,14 +1321,17 @@ static bool nfsd41_cb_get_slot(struct nfsd4_callback *cb, struct rpc_task *task)
 static void nfsd41_cb_release_slot(struct nfsd4_callback *cb)
 {
 	struct nfs4_client *clp = cb->cb_clp;
-	struct nfsd4_session *ses = clp->cl_cb_session;
 
 	if (cb->cb_held_slot >= 0) {
-		spin_lock(&ses->se_lock);
-		ses->se_cb_slot_avail |= BIT(cb->cb_held_slot);
-		spin_unlock(&ses->se_lock);
+		if (clp) {
+			struct nfsd4_session *ses = clp->cl_cb_session;
+
+			spin_lock(&ses->se_lock);
+			ses->se_cb_slot_avail |= BIT(cb->cb_held_slot);
+			spin_unlock(&ses->se_lock);
+			rpc_wake_up_next(&clp->cl_cb_waitq);
+		}
 		cb->cb_held_slot = -1;
-		rpc_wake_up_next(&clp->cl_cb_waitq);
 	}
 }
 
@@ -1345,7 +1348,8 @@ static void nfsd41_destroy_cb(struct nfsd4_callback *cb)
 
 	if (cb->cb_ops && cb->cb_ops->release)
 		cb->cb_ops->release(cb);
-	nfsd41_cb_inflight_end(clp);
+	if (clp)
+		nfsd41_cb_inflight_end(clp);
 }
 
 /**
