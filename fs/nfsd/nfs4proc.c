@@ -1741,6 +1741,11 @@ nfsd4_setup_intra_ssc(struct svc_rqst *rqstp,
 				 &copy->nf_dst);
 }
 
+/*
+ * Invoked when the CB_OFFLOAD callback created for an async COPY
+ * finishes and the callback infrastructure releases it. At that point
+ * mark the copy as done so the reaper can clean up the async state.
+ */
 static void nfsd4_cb_offload_release(struct nfsd4_callback *cb)
 {
 	struct nfsd4_cb_offload *cbo =
