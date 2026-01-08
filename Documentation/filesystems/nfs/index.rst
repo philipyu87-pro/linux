@@ -9,6 +9,7 @@ NFS
    client-identifier
    exporting
    localio
+   nfs42-server-side-copy
    pnfs
    rpc-cache
    rpc-server-gss
