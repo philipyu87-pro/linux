@@ -219,13 +219,37 @@ Ensuring Asynchronous Copy Triggers nfsd4_cb_offload_release
 For an asynchronous copy to occur and trigger ``nfsd4_cb_offload_release``,
 the following conditions must be met:
 
-1. **Large Copy Size**: The copy must be large enough that the server
-   decides to perform it asynchronously. The server typically uses
-   asynchronous mode for copies that would take significant time.
+1. **Large Copy Size**: The decision for sync vs async is made on the
+   **client side**. The Linux NFS client uses this logic in
+   ``fs/nfs/nfs4file.c``::
+
+       /* if the copy size if smaller than 2 RPC payloads, make it
+        * synchronous
+        */
+       if (count <= 2 * NFS_SERVER(file_inode(file_in))->rsize)
+           sync = true;
+
+   This means **async copy is triggered when**: ``count > 2 * rsize``
+
+   The ``rsize`` (read size) is negotiated during NFS mount and depends on
+   server capabilities. You can check the current value with::
+
+       cat /proc/mounts | grep nfs
+       # or
+       nfsstat -m
+
+   **Typical thresholds for async copy**:
+
+   - Default rsize (4KB): Files > 8KB trigger async
+   - Typical rsize (512KB): Files > 1MB trigger async
+   - Maximum rsize (1MB): Files > 2MB trigger async
+
+   Most modern NFS servers negotiate rsize around 512KB-1MB, so files
+   larger than approximately **1MB** will typically trigger async copy.
 
 2. **Client Requests Async Mode**: The NFSv4.2 COPY operation includes
-   a flag indicating whether the client prefers synchronous or asynchronous
-   copy. The Linux NFS client requests asynchronous copy for large files.
+   a ``ca_synchronous`` flag. The client sets this based on the size
+   check above, and the server respects the client's preference.
 
 3. **Server Thread Capacity**: The server may limit the number of pending
    async copies based on the number of NFS threads.
