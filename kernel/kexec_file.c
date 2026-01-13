@@ -165,7 +165,7 @@ static int kexec_image_verify_sig(struct kimage *image, void *buf,
 {
 	if (!image->fops || !image->fops->verify_sig) {
 		pr_debug("kernel loader does not support signature verification.\n");
-		return -EOPNOTSUPP;
+		return -EKEYREJECTED;
 	}
 
 	return image->fops->verify_sig(buf, buf_len);
@@ -181,10 +181,7 @@ kimage_validate_signature(struct kimage *image)
 	if (ret) {
 
 		if (sig_enforce) {
-			if (ret == -EOPNOTSUPP)
-				pr_notice("Kernel image loader does not support signature verification.\n");
-			else
-				pr_notice("Enforced kernel signature verification failed (%d).\n", ret);
+			pr_notice("Enforced kernel signature verification failed (%d).\n", ret);
 			return ret;
 		}
 
@@ -197,10 +194,7 @@ kimage_validate_signature(struct kimage *image)
 		    security_locked_down(LOCKDOWN_KEXEC))
 			return -EPERM;
 
-		if (ret == -EOPNOTSUPP)
-			pr_debug("kernel loader does not support signature verification (%d).\n", ret);
-		else
-			pr_debug("kernel signature verification failed (%d).\n", ret);
+		pr_debug("kernel signature verification failed (%d).\n", ret);
 	}
 
 	return 0;
