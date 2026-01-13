@@ -282,7 +282,8 @@ reduce that overhead:
   devices, which lowers per-ioctl churn compared to the legacy type1 backend.
   If ``CONFIG_IOMMUFD`` is disabled or the platform driver has not been wired
   to IOMMUFD (for example, sPAPR today), continue using the legacy type1 path.
-* On IOMMU drivers that expose the queued-invalidation domain (``DMA-FQ`` in
+* On IOMMU drivers that expose the queued-invalidation domain, where IOTLB
+  invalidations are queued and processed lazily (``DMA-FQ`` in
   ``/sys/kernel/iommu_groups/<grp_id>/type``), switching an idle group to that
   mode enables batched IOTLB invalidations that can shorten map/unmap heavy
   workloads.  See Documentation/ABI/testing/sysfs-kernel-iommu_groups for
