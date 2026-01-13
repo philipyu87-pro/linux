@@ -266,6 +266,38 @@ Long term, VFIO users should migrate to device access through the cdev
 interface described below, and native access through the IOMMUFD
 provided interfaces.
 
+VFIO_IOMMU_MAP_DMA performance considerations
+---------------------------------------------
+
+Mapping large VM memory ranges for passthrough devices can make
+``VFIO_IOMMU_MAP_DMA`` appear slow because the ioctl pins pages and programs
+IOMMU translations.  The current kernel already includes a few mechanisms to
+reduce that overhead:
+
+* Use huge pages for guest memory to shrink the number of pages that must be
+  pinned and mapped by a single ioctl call.
+* When available, prefer the IOMMUFD backend (``CONFIG_IOMMUFD`` or the vfio
+  compatibility mode described above).  The iommufd map path batches contiguous
+  ranges through ``iommu_map_pages()`` and shares mappings across attached
+  devices, which lowers per-ioctl churn compared to the legacy type1 backend.
+  If ``CONFIG_IOMMUFD`` is disabled or the platform driver has not been wired
+  to IOMMUFD (for example, sPAPR today), continue using the legacy type1 path.
+* On IOMMU drivers that expose the queued-invalidation domain, where IOTLB
+  invalidations are queued and processed lazily (``DMA-FQ`` in
+  ``/sys/kernel/iommu_groups/<grp_id>/type``), switching an idle group to that
+  mode enables batched IOTLB invalidations that can shorten map/unmap heavy
+  workloads.  See Documentation/ABI/testing/sysfs-kernel-iommu_groups for
+  details and trade-offs, including the reduced protection while stale
+  translations drain from the queue.  "Idle" means devices are unbound and DMA
+  has been quiesced, as changing the domain type with active DMA is rejected
+  and can be unsafe.
+* On ppc64, the sPAPR TCE v2 interface separates pinning from map/unmap with
+  ``VFIO_IOMMU_SPAPR_REGISTER_MEMORY``/``UNREGISTER_MEMORY``, which is faster
+  for guests that frequently adjust DMA windows, such as vIOMMU-aware guests
+  that update TCE tables (the PowerPC IOMMU translation tables) repeatedly.
+  Background on the v2 interface is in the "There is v2 of SPAPR TCE IOMMU"
+  section below.
+
 VFIO Device cdev
 ----------------
 
