@@ -289,7 +289,7 @@ reduce that overhead:
 * On ppc64, the sPAPR TCE v2 interface separates pinning from map/unmap with
   ``VFIO_IOMMU_SPAPR_REGISTER_MEMORY``/``UNREGISTER_MEMORY``, which is faster
   for guests that frequently adjust DMA windows, such as vIOMMU-aware guests
-  that update TCE tables repeatedly.
+  that update TCE tables (the PowerPC IOMMU translation tables) repeatedly.
 
 VFIO Device cdev
 ----------------
