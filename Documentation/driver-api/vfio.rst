@@ -280,12 +280,16 @@ reduce that overhead:
   compatibility mode described above).  The iommufd map path batches contiguous
   ranges through ``iommu_map_pages()`` and shares mappings across attached
   devices, which lowers per-ioctl churn compared to the legacy type1 backend.
+  If ``CONFIG_IOMMUFD`` is disabled or the platform driver has not been wired
+  to IOMMUFD (for example, sPAPR today), continue using the legacy type1 path.
 * On IOMMU drivers that expose the queued-invalidation domain (``DMA-FQ`` in
   ``/sys/kernel/iommu_groups/<grp_id>/type``), switching an idle group to that
   mode enables batched IOTLB invalidations that can shorten map/unmap heavy
   workloads.  See Documentation/ABI/testing/sysfs-kernel-iommu_groups for
   details and trade-offs, including the reduced protection while stale
-  translations drain from the queue.
+  translations drain from the queue.  "Idle" means devices are unbound and DMA
+  has been quiesced, as changing the domain type with active DMA is rejected
+  and can be unsafe.
 * On ppc64, the sPAPR TCE v2 interface separates pinning from map/unmap with
   ``VFIO_IOMMU_SPAPR_REGISTER_MEMORY``/``UNREGISTER_MEMORY``, which is faster
   for guests that frequently adjust DMA windows, such as vIOMMU-aware guests
