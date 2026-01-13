@@ -294,6 +294,8 @@ reduce that overhead:
   ``VFIO_IOMMU_SPAPR_REGISTER_MEMORY``/``UNREGISTER_MEMORY``, which is faster
   for guests that frequently adjust DMA windows, such as vIOMMU-aware guests
   that update TCE tables (the PowerPC IOMMU translation tables) repeatedly.
+  Background on the v2 interface is in the "There is v2 of SPAPR TCE IOMMU"
+  section below.
 
 VFIO Device cdev
 ----------------
