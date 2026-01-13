@@ -57,6 +57,17 @@ The VF is treated as hot-plugged PCI devices in the kernel, so they
 should be able to work in the same way as real PCI devices. The VF
 requires device driver that is same as a normal PCI device's.
 
+Why must passthrough VMs preallocate all memory
+----------------------------------------------
+
+Assigning a VF to a guest through VFIO lets the device perform DMA
+directly into guest RAM. VFIO programs IOMMU mappings by pinning those
+guest pages so they cannot be swapped out or allocated later. If memory
+were overcommitted or demand-paged, the device could DMA into an absent
+page, causing IOMMU faults or data corruption. Preallocating (and
+locking) guest memory guarantees all pages are present before DMA is
+enabled.
+
 Developer Guide
 ===============
 
