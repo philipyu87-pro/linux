@@ -1,9 +1,7 @@
 # kexec Signature Verification Analysis
 
 ## Problem Statement
-用户反映：镜像已经有签名，但是仍然出现 "Enforced kernel signature verification failed" 错误
-
-Translation: User reports that the image has a signature, but still gets "Enforced kernel signature verification failed" error.
+User reports that their kernel image has a signature, but still gets "Enforced kernel signature verification failed" error when attempting to load it via kexec_file_load().
 
 ## Root Cause Analysis
 
@@ -130,10 +128,10 @@ Then handle -EOPNOTSUPP specially in `kimage_validate_signature`.
 
 **Implement Option 1 (improved error messages) + Option 3 (better error codes)**:
 
-1. Return `-EOPNOTSUPP` when verify_sig callback is not implemented
+1. Return `-EOPNOTSUPP` (error code -95) when verify_sig callback is not implemented
 2. Provide clear, distinct error messages:
-   - "Kernel image format does not support signature verification (error: -95)"
-   - "Kernel signature verification failed (error: -129)" 
+   - "Kernel image format does not support signature verification"
+   - "Kernel signature verification failed" (for actual verification failures)
 3. When sig_enforce is true and error is -EOPNOTSUPP, consider allowing IMA fallback
 4. Document that users should either:
    - Use a kernel image format with signature support
