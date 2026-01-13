@@ -284,10 +284,12 @@ reduce that overhead:
   ``/sys/kernel/iommu_groups/<grp_id>/type``), switching an idle group to that
   mode enables batched IOTLB invalidations that can shorten map/unmap heavy
   workloads.  See Documentation/ABI/testing/sysfs-kernel-iommu_groups for
-  details and trade-offs.
+  details and trade-offs, including the reduced protection while stale
+  translations drain from the queue.
 * On ppc64, the sPAPR TCE v2 interface separates pinning from map/unmap with
   ``VFIO_IOMMU_SPAPR_REGISTER_MEMORY``/``UNREGISTER_MEMORY``, which is faster
-  for guests that frequently adjust DMA windows.
+  for guests that frequently adjust DMA windows, such as vIOMMU-aware guests
+  that update TCE tables repeatedly.
 
 VFIO Device cdev
 ----------------
